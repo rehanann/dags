@@ -1,10 +1,10 @@
+import pendulum
 from airflow import DAG
 from airflow.operators.bash import BashOperator
-from airflow.utils.dates import days_ago
 
 default_args = {
     'owner': 'airflow',
-    'start_date': days_ago(1),
+    'start_date': pendulum.now().subtract(days=1),
 }
 
 with DAG(
@@ -16,9 +16,9 @@ with DAG(
         "release_name": "spark-job",
         "namespace": "gdt",
         "helm_repo_name": "spark-chart",
-        "helm_repo_url": "https://rehanann.github.io/spark-chart",  # 🔁 REPLACE this with actual repo URL
+        "helm_repo_url": "https://rehanann.github.io/spark-chart",
         "chart_name": "spark-chart/spark-chart",
-        "values_file": "/opt/airflow/helm/values/spark-values.yaml",  # Optional: your custom values file
+        "values_file": "/opt/airflow/helm/values/spark-values.yaml",
     },
 ) as dag:
 
@@ -29,7 +29,7 @@ with DAG(
             "helm repo update && "
             "helm upgrade --install {{ params.release_name }} {{ params.chart_name }} "
             "--namespace {{ params.namespace }} "
-            "--set image.args='{-c,/opt/spark/bin/spark-submit /opt/spark/work-dir/shared/test2.py}' "
+            "--set image.args='[-c,/opt/spark/bin/spark-submit /opt/spark/work-dir/shared/test2.py]' "
             "--set runAsJob=true"
         ),
     )
