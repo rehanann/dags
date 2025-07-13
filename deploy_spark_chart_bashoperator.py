@@ -33,7 +33,7 @@ deploy_chart = BashOperator(
             "command": ["/bin/bash"],
             "args": [
               "-c",
-              "/opt/spark/bin/spark-submit /opt/spark/work-dir/shared/test2.py
+              "/opt/spark/bin/spark-submit /opt/spark/work-dir/shared/test2.py"
             ]
           }
         }
