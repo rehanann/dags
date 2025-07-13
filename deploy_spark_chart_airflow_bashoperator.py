@@ -29,9 +29,12 @@ with DAG(
             "helm repo update && "
             "helm upgrade --install {{ params.release_name }} {{ params.chart_name }} "
             "--namespace {{ params.namespace }} "
-            "--set image.args='[-c,/opt/spark/bin/spark-submit /opt/spark/work-dir/shared/test2.py]' "
-            "--set runAsJob=true"
+            "--set image.repository='rehanann/spark-py' "
+            "--set image.tag='3.4.0-extended' "
+            "--set image.pullPolicy='Always' "
+            "--set-string image.args='[\"-c\", \"/opt/spark/bin/spark-submit /opt/spark/work-dir/shared/test2.py\"]' "
+            "--set runAsJob=true "
+            "--create-namespace"
         ),
     )
-
     deploy_spark
