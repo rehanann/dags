@@ -9,7 +9,7 @@ default_args = {
 }
 
 dag = DAG(
-    dag_id='deploy_spark_chart_bashoperator',
+    dag_id='test_helm_instal',
     default_args=default_args,
     schedule=None,  # ✅ use `schedule`, not `schedule_interval`
     catchup=False,
@@ -17,7 +17,7 @@ dag = DAG(
 )
 
 deploy_chart = BashOperator(
-    task_id='deploy_spark_chart',
+    task_id='test_spark_chart',
     bash_command="""
     curl -X POST \
       http://helm-api-api.default.svc.cluster.local:8000/install \
@@ -30,10 +30,10 @@ deploy_chart = BashOperator(
         "values": {
           "runAsJob": true,
           "image": {
-            "command": ["\\/bin\\/bash"],
+            "command": ["/bin/bash"],
             "args": [
               "-c",
-              "\\/opt\\/spark\\/bin\\/spark-submit \\/opt\\/spark\\/work-dir\\/shared\\/test2.py"
+              "/opt/spark/bin/spark-submit /opt/spark/work-dir/shared/test2.py"
             ]
           }
         }
