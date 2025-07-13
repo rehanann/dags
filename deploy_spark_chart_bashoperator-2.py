@@ -1,5 +1,21 @@
-import requests
+from airflow import DAG
 from airflow.operators.python import PythonOperator
+from datetime import datetime
+import requests
+
+default_args = {
+    'owner': 'airflow',
+    'start_date': datetime(2024, 1, 1),
+    'retries': 1,
+}
+
+dag = DAG(
+    dag_id='deploy_spark_chart_pythonoperator',  # ✅ DAG name
+    default_args=default_args,
+    schedule=None,
+    catchup=False,
+    tags=['helm', 'spark'],
+)
 
 def deploy_helm_chart():
     url = "http://helm-api-api.default.svc.cluster.local:8000/install"
@@ -24,3 +40,4 @@ deploy_chart = PythonOperator(
     python_callable=deploy_helm_chart,
     dag=dag,
 )
+
