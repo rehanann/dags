@@ -10,7 +10,7 @@ default_args = {
 with DAG(
     dag_id='deploy_spark_chart',
     default_args=default_args,
-    schedule_interval=None,
+    schedule=None,  # ← replaced `schedule_interval` with `schedule`
     catchup=False,
     params={
         "release_name": "spark-job",
