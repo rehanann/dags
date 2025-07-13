@@ -1,43 +1,26 @@
-from airflow import DAG
-from airflow.operators.bash import BashOperator
-from datetime import datetime
+import requests
+from airflow.operators.python import PythonOperator
 
-default_args = {
-    'owner': 'airflow',
-    'start_date': datetime(2024, 1, 1),
-    'retries': 1,
-}
-
-dag = DAG(
-    dag_id='deploy_spark_chart_bashoperator-2',
-    default_args=default_args,
-    schedule=None,  # ✅ use `schedule`, not `schedule_interval`
-    catchup=False,
-    tags=['helm', 'spark'],
-)
-
-deploy_chart = BashOperator(
-    task_id='deploy_spark_chart-2',
-    bash_command="""
-    curl -X POST \
-      http://helm-api-api.default.svc.cluster.local:8000/install \
-      -H 'accept: application/json' \
-      -H 'Content-Type: application/json' \
-      -d '{
+def deploy_helm_chart():
+    url = "http://helm-api-api.default.svc.cluster.local:8000/install"
+    payload = {
         "release_name": "switch-values-test",
         "chart_name": "spark-chart/spark-chart",
         "namespace": "gdt",
         "values": {
-          "runAsJob": true,
-          "image": {
-            "command": ["/bin/bash"],
-            "args": [
-              "-c",
-              "/opt/spark/bin/spark-submit /opt/spark/work-dir/shared/test2.py"
-            ]
-          }
+            "runAsJob": True,
+            "image": {
+                "command": ["/bin/bash"],
+                "args": ["-c", "/opt/spark/bin/spark-submit /opt/spark/work-dir/shared/test2.py"]
+            }
         }
-      }'
-    """,
+    }
+    headers = {"accept": "application/json", "Content-Type": "application/json"}
+    response = requests.post(url, json=payload, headers=headers)
+    response.raise_for_status()
+
+deploy_chart = PythonOperator(
+    task_id='deploy_spark_chart',
+    python_callable=deploy_helm_chart,
     dag=dag,
 )
