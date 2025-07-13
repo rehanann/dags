@@ -30,10 +30,10 @@ deploy_chart = BashOperator(
         "values": {
           "runAsJob": true,
           "image": {
-            "command": ["/bin/bash"],
+            "command": ["\\/bin\\/bash"],
             "args": [
               "-c",
-              "/opt/spark/bin/spark-submit /opt/spark/work-dir/shared/test2.py"
+              "\\/opt\\/spark\\/bin\\/spark-submit \\/opt\\/spark\\/work-dir\\/shared\\/test2.py"
             ]
           }
         }
