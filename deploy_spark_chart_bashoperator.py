@@ -29,9 +29,12 @@ deploy_chart = BashOperator(
         "namespace": "gdt",
         "values": {
           "runAsJob": true,
-          "driver": {
-            "command": "bash",
-            "args": ["-c", "/opt/spark/bin/spark-submit /opt/spark/work-dir/shared/test2.py"]
+          "image": {
+            "command": ["/bin/bash"],
+            "args": [
+              "-c",
+              "/opt/spark/bin/spark-submit /opt/spark/work-dir/shared/test2.py
+            ]
           }
         }
       }'
