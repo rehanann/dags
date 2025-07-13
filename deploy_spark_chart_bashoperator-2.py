@@ -17,7 +17,7 @@ dag = DAG(
 )
 
 deploy_chart = BashOperator(
-    task_id='deploy_spark_chart',
+    task_id='deploy_spark_chart-2',
     bash_command="""
     curl -X POST \
       http://helm-api-api.default.svc.cluster.local:8000/install \
