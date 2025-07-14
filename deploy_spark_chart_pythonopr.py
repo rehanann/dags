@@ -3,7 +3,7 @@ from airflow.operators.python import PythonOperator
 from datetime import datetime
 import requests
 import json
-import yaml  # ✅ Required to parse YAML
+import yaml
 
 default_args = {
     'owner': 'airflow',
@@ -20,9 +20,13 @@ dag = DAG(
 )
 
 def deploy_helm_chart():
-    url = "http://helm-api-api.default.svc.cluster.local:8000/install"
+    # ✅ Include query params in URL
+    installation_name = "switch-values-test"
+    namespace = "gdt"
 
-    # ✅ YAML formatted setValues
+    url = f"http://helm-api-api.default.svc.cluster.local:8000/install?installation={installation_name}&namespace={namespace}"
+
+    # ✅ setValues YAML block
     set_values_yaml = """
 runAsJob: true
 image:
@@ -32,35 +36,30 @@ image:
     - "/opt/spark/bin/spark-submit /opt/spark/work-dir/shared/test2.py"
 """
 
-    # Parse YAML and convert back to string
-    parsed = yaml.safe_load(set_values_yaml)
-    set_values_str = yaml.dump(parsed, default_flow_style=False)
+    # Clean up formatting (optional)
+    parsed_yaml = yaml.safe_load(set_values_yaml)
+    set_values_str = yaml.dump(parsed_yaml, default_flow_style=False)
 
+    # ✅ Body structure to match FastAPI's expected schema
     payload = {
-        "release_name": "switch-values-test",
-        "chart_name": "spark-chart/spark-chart",
-        "namespace": "gdt",
+        "chart": "spark-chart/spark-chart",
+        "releaseName": installation_name,
+        "version": "0.2.0",  # You MUST include version per API
         "setValues": set_values_str
     }
-
-    payload_str = json.dumps(payload)
-    print("Payload string to be sent:")
-    print(payload_str)
 
     headers = {
         "accept": "application/json",
         "Content-Type": "application/json"
     }
 
-    # 🟢 Send request
-    response = requests.post(url, data=payload_str, headers=headers)
+    # ✅ Send the request
+    response = requests.post(url, data=json.dumps(payload), headers=headers)
 
-    # ✅ Print response status and body
-    print(f"Response status code: {response.status_code}")
-    print("Response body:")
+    print(f"Response Status: {response.status_code}")
+    print("Response Body:")
     print(response.text)
 
-    # Raise if error
     response.raise_for_status()
 
 deploy_chart = PythonOperator(
@@ -68,5 +67,3 @@ deploy_chart = PythonOperator(
     python_callable=deploy_helm_chart,
     dag=dag,
 )
-
-
