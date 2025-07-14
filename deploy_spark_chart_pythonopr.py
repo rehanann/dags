@@ -22,7 +22,7 @@ dag = DAG(
 def deploy_helm_chart():
     url = "http://helm-api-api.default.svc.cluster.local:8000/install"
 
-    # ✅ YAML formatted setValues (you can also load this from a file)
+    # ✅ YAML formatted setValues
     set_values_yaml = """
 runAsJob: true
 image:
@@ -32,7 +32,7 @@ image:
     - "/opt/spark/bin/spark-submit /opt/spark/work-dir/shared/test2.py"
 """
 
-    # ✅ Parse YAML to dict then dump back to string (cleaned)
+    # Parse YAML and convert back to string
     parsed = yaml.safe_load(set_values_yaml)
     set_values_str = yaml.dump(parsed, default_flow_style=False)
 
@@ -40,18 +40,27 @@ image:
         "release_name": "switch-values-test",
         "chart_name": "spark-chart/spark-chart",
         "namespace": "gdt",
-        "setValues": set_values_str  # ✅ this is a string
+        "setValues": set_values_str
     }
 
     payload_str = json.dumps(payload)
-    print("Payload string to be sent:", payload_str)
+    print("Payload string to be sent:")
+    print(payload_str)
 
     headers = {
         "accept": "application/json",
         "Content-Type": "application/json"
     }
 
+    # 🟢 Send request
     response = requests.post(url, data=payload_str, headers=headers)
+
+    # ✅ Print response status and body
+    print(f"Response status code: {response.status_code}")
+    print("Response body:")
+    print(response.text)
+
+    # Raise if error
     response.raise_for_status()
 
 deploy_chart = PythonOperator(
