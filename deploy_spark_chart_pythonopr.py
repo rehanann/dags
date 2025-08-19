@@ -4,6 +4,7 @@ from datetime import datetime
 import requests
 import json
 import yaml
+import base64
 
 default_args = {
     'owner': 'airflow',
@@ -24,7 +25,7 @@ def deploy_helm_chart():
     installation_name = "switch-values-test"
     namespace = "gdt"
 
-    url = f"http://helm-api-api.default.svc.cluster.local:8000/install?installation={installation_name}&namespace={namespace}"
+    url = f"http://cookiee-api.cookiee.svc.cluster.local:8000/install?installation={installation_name}&namespace={namespace}&cluster_name={cluster1}"
 
     # ✅ setValues YAML block
     set_values_yaml = """
@@ -47,6 +48,8 @@ image:
         "version": "0.2.0",  # You MUST include version per API
         "setValues": set_values_str
     }
+    userpass = "admin:admin".encode("utf-8")
+    encoded_credentials = base64.b64encode(userpass).decode("utf-8")
 
     headers = {
         "accept": "application/json",
